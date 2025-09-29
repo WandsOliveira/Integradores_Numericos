@@ -10,10 +10,10 @@ classdef Integradores
     %   Diferenca_Central - Metodo da Diferenca Central
     %   Houbolt           - Metodo de Houbolt
     %   WilsonTheta       - Metodo de Wilson-Theta
-    %
+    %   Newmark           - Metodo de Newmark
     % Uso:
-    %   [u,v,a] = Integradores.Diferenca_Central(K,M,C,R0,u0,v0,a0,dt,t0,tf);
-    %   [u,v,a] = Integradores.Houbolt(K,M,C,R0,u0,v0,a0,dt,t0,tf);
+    %   [u,v,a] = Integradores.Diferenca_Central(K,M,C,R0,u0,v0,a0,dt,t0,tf,zeta);
+    %   [u,v,a] = Integradores.Houbolt(K,M,C,R0,u0,v0,a0,dt,t0,tf,zeta);
     %   [u,v,a] = Integradores.WilsonTheta(K,M,C,R0,u0,v0,a0,dt,t0,tf,theta);
     %   [u,v,a] = Integradores.Newmark(K,M,C,R0,u0,v0,a0,dt1,t0,Tf,delta,alpha)
 
@@ -26,7 +26,7 @@ classdef Integradores
     
     
     
-    function [u_t,v_t,a_t] = Diferenca_Central(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf)
+    function [u_t,v_t,a_t] = Diferenca_Central(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf,zeta)
     
     %% === Entradas ====
     %% K       -> Matriz  de rigidez
@@ -39,6 +39,7 @@ classdef Integradores
     %% Delta_t -> Discretizacao do tempo
     %% t0      -> Tempo inicial
     %% tf      -> Tempo final
+    %% zeta    -> coeficiente de amortecimento (0 para sistema nao amortecido)
     %% === Saidas ===
     %% u_t     -> Deslocamento  no tempo
     %% v_t     -> velocidade  no tempo
@@ -48,6 +49,33 @@ classdef Integradores
     
     %% === Vetor tempo ===
     t = t0:Delta_t:tf;
+
+    %% ==== Analise dos criterios de estabilidade ====
+        % Obtendo as frequencias naturais do sistema
+        [~, eigVal] = eig(K, M);   % resolve o problema generalizado
+        omega = sqrt(diag(eigVal));     % frequências naturais em rad/s
+        A = [(2 - max(omega)^2*Delta_t^2)/(1 + zeta * max(omega) * Delta_t)  -(1 - zeta * max(omega) * Delta_t)/(1 + zeta * max(omega) * Delta_t);
+               1  0 ]; % Matriz da aproximacao da integracao
+        lambda = eig(A); % Autovalores da matriz A
+        rho = max(abs(lambda)); % Raio espectral
+        if rho > 1
+            error(['Criterio de estabilidade nao satisfeito! ',...
+                     'Raio espectral máximo = ', num2str(rho)]);
+        end
+        %% ==== Plot do criterio de estabilidade ====
+        figure('Name','Criterio de Estabilidade');
+        phi = linspace(0, 2*pi, 100);
+        x = cos(phi);  % Parte real
+        y = sin(phi);  % Parte imaginaria
+        plot(x, y, 'k--', 'LineWidth',1.5); hold on
+        plot(real(lambda), imag(lambda), 'ro', 'MarkerSize',8, 'MarkerFaceColor','r');
+        axis equal; grid on;
+        xlabel('Re', 'Interpreter','latex', 'FontSize',14);
+        ylabel('Im', 'Interpreter','latex', 'FontSize',14);
+        title('Criterio de Estabilidade', 'Interpreter','latex', 'FontSize',16);
+        legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
+        hold off;
+
     %% Calculo das constantes iniciais
     a0 = 1/Delta_t^2;
     a1 = 1/(2*Delta_t);
@@ -111,7 +139,7 @@ classdef Integradores
     end
 
 
-    function [u_t,v_t,a_t] = Houbolt(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf)
+    function [u_t,v_t,a_t] = Houbolt(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf,zeta)
 
     %% === Entradas ====
     %% K       -> Matriz  de rigidez
@@ -136,7 +164,7 @@ classdef Integradores
     a3 = 3/Delta_t; a4 = -2*a0; a5 = -a3/2; a6 = a0/2; a7 = a3/9;
     
     %% Iniciando u_Deltat e  u_2Deltat pelo metodo da Diferenca finita
-    [u_t1,v_t1,a_t1] = Integradores.Diferenca_Central(K,M,C,R0,u0,v0,acel_0,Delta_t,0,Delta_t*2);
+    [u_t1,v_t1,a_t1] = Integradores.Diferenca_Central(K,M,C,R0,u0,v0,acel_0,Delta_t,0,Delta_t*2,zeta);
     
     %% Matriz de rigidez efetiva, nomeada  K_e
     K_e = K + a0*M + a1*C;
@@ -324,7 +352,7 @@ classdef Integradores
     %% Vetor da força no instante t + Deltat
     
       R_t(:,i + i) = R0(:,i + 1) + M * (a0 * u_t(:, i) + a2 * v_t(:,i) + a3 * a_t(:,i))...
-          + C* (a1 * u_t(:,i) + a4 * v_t(:,i) + a5 * a_t(:,1));
+          + C* (a1 * u_t(:,i) + a4 * v_t(:,i) + a5 * a_t(:,i));
     %% Vetor do deslocamento no instante t + Delta_t
       u_t(:,i + 1) = K_e\R_t(:,i + i);
      
