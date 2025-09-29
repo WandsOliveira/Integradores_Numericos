@@ -16,8 +16,8 @@ a0 = [0; 10];      % Aceleração inicial
 
 % === Caso 1: Δt = 0.28 ===
 T2  = 2.8;   
-dt1 = T2/80;        % Delta tempo
-Tf  = 3.36;
+dt1 = T2/100;        % Delta tempo
+Tf  = 5;
 R0  = zeros(2,length(0:dt1:Tf));        % Vetor de carga
 R0(1,:) = 0;
 R0(2,:) = 10;
@@ -46,7 +46,7 @@ plot(t1, v_t1(1,:), 'go', t1, v_t1(2,:), 'go','LineWidth',3); hold on
 plot(t1, v_t2(1,1:end-1), 'k+',  t1, v_t2(2,1:end-1), 'k+','LineWidth',3);
 plot(t1, v_t3(1,:), 'r', t1, v_t3(2,:), 'r','LineWidth',3);
 plot(t1, v_t4(1,:), 'b-.', t1, v_t4(2,:), 'b-.','LineWidth',3);
-xlabel('Tempo [s]'); ylabel('Velocidade'); grid on;
+xlabel('Tempo [s]', 'Interpreter','latex', 'FontSize',14); ylabel('Velocidade [m/s]', 'Interpreter','latex', 'FontSize',14); grid on;
 legend('v1 - D.C','v2 - D.C','v1 - Houbolt','v2 - Houbolt',...
        'v1 - Wilson','v2 - Wilson','v1 - Newmark','v2 - Newmark','Location','best');
 
@@ -56,7 +56,7 @@ plot(t1, a_t1(1,:), 'go', t1, a_t1(2,:), 'go','LineWidth',3); hold on
 plot(t1, a_t2(1,1:end-1), 'k+',  t1, a_t2(2,1:end-1), 'k+','LineWidth',2);
 plot(t1, a_t3(1,:), 'r', t1, a_t3(2,:), 'r','LineWidth',3);
 plot(t1, a_t4(1,:), 'b-.', t1, a_t4(2,:), 'b-.','LineWidth',3);
-xlabel('Tempo [s]'); ylabel('Aceleracao'); grid on;
+xlabel('Tempo [s]', 'Interpreter','latex', 'FontSize',14); ylabel('Aceleracao [$m/s^2$]', 'Interpreter','latex', 'FontSize',14); grid on;
 legend('a1 - D.C','a2 - D.C','a1 - Houbolt','a2 - Houbolt',...
        'a1 - Wilson','a2 - Wilson','a1 - Newmark','a2 - Newmark','Location','best');
 
