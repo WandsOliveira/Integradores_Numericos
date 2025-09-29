@@ -59,23 +59,26 @@ classdef Integradores
         lambda = eig(A); % Autovalores da matriz A
         rho = max(abs(lambda)); % Raio espectral
         if rho > 1
+            %% ==== Plot do criterio de estabilidade ====
+            figure('Name','Criterio de Estabilidade - Diferença central');
+            phi = linspace(0, 2*pi, 100);
+            x = cos(phi);  % Parte real
+            y = sin(phi);  % Parte imaginaria
+            plot(x, y, 'k--', 'LineWidth',1.5); hold on
+            plot(real(lambda), imag(lambda), 'ro', 'MarkerSize',8, 'MarkerFaceColor','r');
+            axis equal; grid on;
+            xlabel('Re', 'Interpreter','latex', 'FontSize',14);
+            ylabel('Im', 'Interpreter','latex', 'FontSize',14);
+            title('Criterio de Estabilidade - Diferença central', 'Interpreter','latex', 'FontSize',16);
+            legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
+            hold off;
+
             error(['Criterio de estabilidade nao satisfeito! ',...
                      'Raio espectral máximo = ', num2str(rho)]);
-        end
-        %% ==== Plot do criterio de estabilidade ====
-        figure('Name','Criterio de Estabilidade');
-        phi = linspace(0, 2*pi, 100);
-        x = cos(phi);  % Parte real
-        y = sin(phi);  % Parte imaginaria
-        plot(x, y, 'k--', 'LineWidth',1.5); hold on
-        plot(real(lambda), imag(lambda), 'ro', 'MarkerSize',8, 'MarkerFaceColor','r');
-        axis equal; grid on;
-        xlabel('Re', 'Interpreter','latex', 'FontSize',14);
-        ylabel('Im', 'Interpreter','latex', 'FontSize',14);
-        title('Criterio de Estabilidade', 'Interpreter','latex', 'FontSize',16);
-        legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
-        hold off;
 
+
+        end
+       
     %% Calculo das constantes iniciais
     a0 = 1/Delta_t^2;
     a1 = 1/(2*Delta_t);
