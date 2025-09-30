@@ -25,8 +25,8 @@ R0(2,:) = 10;
 % === Chamadas aos métodos da classe Integradores ===
 [u_t1,v_t1,a_t1] = Integradores.Diferenca_Central(K,M,C,R0,u0,v0,a0,dt1,0,Tf,0);
 [u_t2,v_t2,a_t2] = Integradores.Houbolt(K,M,C,R0,u0,v0,a0,dt1,0,Tf,0);
-[u_t3,v_t3,a_t3] = Integradores.Wilson_theta(K,M,C,R0,u0,v0,a0,dt1,0,Tf, 1.4);
-[u_t4,v_t4,a_t4] = Integradores.Newmark(K,M,C,R0,u0,v0,a0,dt1,0,Tf,0.5,0.25);
+[u_t3,v_t3,a_t3] = Integradores.Wilson_theta(K,M,C,R0,u0,v0,a0,dt1,0,Tf, 1.4,0);
+[u_t4,v_t4,a_t4] = Integradores.Newmark(K,M,C,R0,u0,v0,a0,dt1,0,Tf,0.5,0.25,0);
 t1 = 0:dt1:Tf;  % Vetor tempo
 
 %% === Deslocamento ===

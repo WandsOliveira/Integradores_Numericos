@@ -73,12 +73,12 @@ classdef Integradores
             legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
             hold off;
 
-            error(['Criterio de estabilidade nao satisfeito! ',...
+            error(['Criterio de estabilidade pelo método da diferença central nao satisfeito! ',...
                      'Raio espectral máximo = ', num2str(rho)]);
-
+    
 
         end
-       
+      %% ======================================
     %% Calculo das constantes iniciais
     a0 = 1/Delta_t^2;
     a1 = 1/(2*Delta_t);
@@ -155,6 +155,7 @@ classdef Integradores
     %% Delta_t -> Discretizacao do tempo
     %% t0      -> Tempo inicial
     %% tf      -> Tempo final
+    %% zeta    -> coeficiente de amortecimento (0 para sistema nao amortecido)
     %% === Saidas ===
     %% u_t     -> Deslocamento  no tempo
     %% v_t     -> velocidade  no tempo
@@ -162,6 +163,39 @@ classdef Integradores
     
     %% === Vetor tempo ===
     t = t0:Delta_t:tf;
+        %% ==== Analise dos criterios de estabilidade ====
+        % Obtendo as frequencias naturais do sistema
+        [~, eigVal] = eig(K, M);   % resolve o problema generalizado
+        omega = sqrt(diag(eigVal));     % frequências naturais em rad/s
+       beta = 1 ./ (2/(max(omega)^2 * Delta_t^2) + 11*zeta/(3*max(omega) * Delta_t) + 1);
+       kappa = zeta*beta/(max(omega) * Delta_t);
+       
+        A = [5*beta/(max(omega)^2 * Delta_t^2 ) + 6 * kappa  -(4*beta/(max(omega)^2 * Delta_t^2 ) + 3 * kappa)  beta/(max(omega)^2 * Delta_t^2 ) + 2*kappa/3;
+               1  0 0 ;
+               0 1 0 ]; % Matriz da aproximacao da integracao
+        lambda = eig(A); % Autovalores da matriz A
+        rho = max(abs(lambda)); % Raio espectral
+        if rho > 1
+            %% ==== Plot do criterio de estabilidade ====
+            figure('Name','Criterio de Estabilidade - Houbolt');
+            phi = linspace(0, 2*pi, 100);
+            x = cos(phi);  % Parte real
+            y = sin(phi);  % Parte imaginaria
+            plot(x, y, 'k--', 'LineWidth',1.5); hold on
+            plot(real(lambda), imag(lambda), 'ro', 'MarkerSize',8, 'MarkerFaceColor','r');
+            axis equal; grid on;
+            xlabel('Re', 'Interpreter','latex', 'FontSize',14);
+            ylabel('Im', 'Interpreter','latex', 'FontSize',14);
+            title('Criterio de Estabilidade - Método de Houbolt', 'Interpreter','latex', 'FontSize',16);
+            legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
+            hold off;
+
+            error(['Criterio de estabilidade pelo método de Houbolt nao satisfeito! ',...
+                     'Raio espectral máximo = ', num2str(rho)]);
+
+
+        end
+     %% =============================================   
     %% Calculo das constantes iniciais
     a0 = 2/Delta_t^2; a1 = 11/(6*Delta_t); a2 = 5/Delta_t^2;
     a3 = 3/Delta_t; a4 = -2*a0; a5 = -a3/2; a6 = a0/2; a7 = a3/9;
@@ -223,7 +257,7 @@ classdef Integradores
     %% ISBN: 0-13-627190-1.
     end
 
-     function [u_t,v_t,a_t] = Wilson_theta(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf,theta)
+     function [u_t,v_t,a_t] = Wilson_theta(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf,theta,zeta)
 
     %% === Entradas ====
     %% K       -> Matriz  de rigidez
@@ -237,6 +271,7 @@ classdef Integradores
     %% t0      -> Tempo inicial
     %% tf      -> Tempo final
     %% theta   -> constante
+    %% zeta    -> coeficiente de amortecimento (0 para sistema nao amortecido)
     %% === Saidas ===
     %% u_t     -> Deslocamento  no tempo
     %% v_t     -> velocidade  no tempo
@@ -244,6 +279,41 @@ classdef Integradores
     
     %% === Vetor tempo ===
     t = t0:Delta_t:tf;
+            %% ==== Analise dos criterios de estabilidade ====
+        % Obtendo as frequencias naturais do sistema
+        [~, eigVal] = eig(K, M);   % resolve o problema generalizado
+        omega = sqrt(diag(eigVal));     % frequências naturais em rad/s
+        beta = 1 ./ (theta/((max(omega)^2 * Delta_t^2 )) + zeta*theta^2/(max(omega * Delta_t))...
+            + theta^3/6);
+        kappa = zeta*beta/(max(omega) * Delta_t);
+       A = [1 - beta*theta^2/3 - 1/theta - kappa*theta,          1/Delta_t * (-beta*theta - 2*kappa),         1/Delta_t^2 * (-beta);
+     Delta_t * (1 - 1/(2*theta) - beta*theta^2/6 - kappa*theta/2),   1 - beta*theta/2 - kappa,            1/Delta_t * (-beta/2);
+     Delta_t^2 * (1/2 - 1/(6*theta) - beta*theta^2/18 - kappa*theta/6),   Delta_t * (1 - beta*theta/6 - kappa/3),   1 - beta/6];
+
+% Matriz da aproximacao da integracao
+        lambda = eig(A); % Autovalores da matriz A
+        rho = max(abs(lambda)); % Raio espectral
+        if rho > 1
+            %% ==== Plot do criterio de estabilidade ====
+            figure('Name','Criterio de Estabilidade - Wilson_theta');
+            phi = linspace(0, 2*pi, 100);
+            x = cos(phi);  % Parte real
+            y = sin(phi);  % Parte imaginaria
+            plot(x, y, 'k--', 'LineWidth',1.5); hold on
+            plot(real(lambda), imag(lambda), 'ro', 'MarkerSize',8, 'MarkerFaceColor','r');
+            axis equal; grid on;
+            xlabel('Re', 'Interpreter','latex', 'FontSize',14);
+            ylabel('Im', 'Interpreter','latex', 'FontSize',14);
+            title('Criterio de Estabilidade - Método de Wilson_theta', 'Interpreter','latex', 'FontSize',16);
+            legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
+            hold off;
+
+            error(['Criterio de estabilidade pelo método de Wilson_theta nao satisfeito! ',...
+                     'Raio espectral máximo = ', num2str(rho)]);
+
+
+        end
+     %% =============================================  
     %% Calculo das constantes iniciais
     a0 = 6/(theta*Delta_t)^2; a1 = 3/(theta*Delta_t); a2 = 2 * a1;
     a3 = theta*Delta_t/2; a4 = a0/theta; a5 = -a2/theta; a6 = 1 - 3/theta; a7 = Delta_t/2;
@@ -295,7 +365,7 @@ classdef Integradores
     %% ISBN: 0-13-627190-1.
     end
 
-    function [u_t,v_t,a_t] = Newmark(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf,delta,alpha)
+    function [u_t,v_t,a_t] = Newmark(K,M,C,R0,u0,v0,acel_0,Delta_t, t0,tf,delta,alpha,zeta)
     %% === Entradas ====
     %% K       -> Matriz  de rigidez
     %% M       -> Matriz  de Massa
@@ -309,11 +379,12 @@ classdef Integradores
     %% tf      -> Tempo final
     %% delta   -> constante (>= 0.5)
     %% alpha   -> constante 
+    %% zeta    ->
     %% === Saidas ===
     %% u_t     -> Deslocamento  no tempo
     %% v_t     -> velocidade  no tempo
     %% a_t     -> aceleracao  no tempo
-    
+    %% zeta    -> coeficiente de amortecimento (0 para sistema nao amortecido)
     %% === Vetor tempo ===
     t = t0:Delta_t:tf;
     %% Caculo da constante alpha
@@ -324,7 +395,39 @@ classdef Integradores
         error('alpha deve ser maior do que 0.25 * (0.5 + delta)^2 !')
     end
 
+    %% ==== Analise dos criterios de estabilidade ====
+        % Obtendo as frequencias naturais do sistema
+        [~, eigVal] = eig(K, M);   % resolve o problema generalizado
+        omega = sqrt(diag(eigVal));     % frequências naturais em rad/s
+        beta = 1 ./ (1/(max(omega)^2*Delta_t^2) + 2*zeta*delta/max(omega)*Delta_t + alpha);
+        kappa = zeta*beta/(max(omega) * Delta_t);
+       A = [ (-(1/2 - alpha)*beta - 2*(1 - delta)*kappa),      (1/Delta_t)*(-beta - 2*kappa),           (1/Delta_t^2)*(-beta);
+      Delta_t*(1 - delta - (1/2 - alpha)*delta*beta - 2*(1 - delta)*delta*kappa),  1 - beta*delta - 2*delta*kappa,   (1/Delta_t)*(-beta*delta);
+      Delta_t^2*(1/2 - alpha - (1/2 - alpha)*alpha*beta - 2*(1 - delta)*alpha*kappa),  Delta_t*(1 - alpha*beta - 2*alpha*kappa),  1 - alpha*beta ];
+    % Matriz da aproximacao da integracao
+        lambda = eig(A); % Autovalores da matriz A
+        rho = max(abs(lambda)); % Raio espectral
+        if rho > 1
+            %% ==== Plot do criterio de estabilidade ====
+            figure('Name','Criterio de Estabilidade - Newmark');
+            phi = linspace(0, 2*pi, 100);
+            x = cos(phi);  % Parte real
+            y = sin(phi);  % Parte imaginaria
+            plot(x, y, 'k--', 'LineWidth',1.5); hold on
+            plot(real(lambda), imag(lambda), 'ro', 'MarkerSize',8, 'MarkerFaceColor','r');
+            axis equal; grid on;
+            xlabel('Re', 'Interpreter','latex', 'FontSize',14);
+            ylabel('Im', 'Interpreter','latex', 'FontSize',14);
+            title('Criterio de Estabilidade - Método de Newmark', 'Interpreter','latex', 'FontSize',16);
+            legend('Círculo unitário', 'Autovalores do sistema', 'Location','best');
+            hold off;
 
+            error(['Criterio de estabilidade pelo método de Newmark nao satisfeito! ',...
+                     'Raio espectral máximo = ', num2str(rho)]);
+
+
+        end
+     %% =============================================  
     
     %% Calculo das constantes iniciais
     a0 = 1/(alpha * Delta_t^2); a1 = delta/(alpha * Delta_t); a2 = 1/(alpha * Delta_t);
