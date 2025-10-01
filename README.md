@@ -30,7 +30,6 @@ Repositório com métodos de **integração temporal** para sistemas dinâmicos 
 
 ## 🧪 Exemplo de Uso
 
-```matlab
 % Sistema Linear
 A = [3 -1 1; 2 4 1; -1 2 5];
 b = [4; 1; 1];
@@ -52,7 +51,7 @@ V = rand(3,3); % matriz de vetores aleatórios
 % Fatoração QR
 [Q,R] = Algebra_Linear.QR_Gram_Schmidt_Matriz(V);
 
-
+---
 ## 📚 Referências
 Bathe, K.-J.; Wilson, E. L. *Numerical Methods in Finite Element Analysis.*  
 Prentice-Hall Civil Engineering and Engineering Mechanics Series, 1976.  
