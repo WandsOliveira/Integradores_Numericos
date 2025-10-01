@@ -29,6 +29,7 @@ Repositório com métodos de **integração temporal** para sistemas dinâmicos 
 ---
 
 ## 🧪 Exemplo de Uso
+```matlab
 % Matrizes do sistema  
 K = [...]; % Rigidez  
 M = [...]; % Massa  
@@ -55,6 +56,7 @@ ylabel('Deslocamento [m]')
 title('Resposta Dinâmica - Diferença Central')  
 grid on  
 
+````
 ---
 ## 📚 Referências
 Bathe, K.-J.; Wilson, E. L. *Numerical Methods in Finite Element Analysis.*  
