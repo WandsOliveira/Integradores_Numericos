@@ -53,8 +53,6 @@ V = rand(3,3); % matriz de vetores aleatórios
 [Q,R] = Algebra_Linear.QR_Gram_Schmidt_Matriz(V);
 
 
----
-
 ## 📚 Referências
 Bathe, K.-J.; Wilson, E. L. *Numerical Methods in Finite Element Analysis.*  
 Prentice-Hall Civil Engineering and Engineering Mechanics Series, 1976.  
