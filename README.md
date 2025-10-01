@@ -29,31 +29,29 @@ Repositório com métodos de **integração temporal** para sistemas dinâmicos 
 ---
 
 ## 🧪 Exemplo de Uso
-% Matrizes do sistema  
-K = [...]; % Rigidez  
-M = [...]; % Massa  
-C = [...]; % Amortecimento  
-R0 = [...]; % Força no tempo  
 
-% Condições iniciais  
-u0 = zeros(n,1);  
-v0 = zeros(n,1);  
-acel_0 = zeros(n,1);  
+```matlab
+% Sistema Linear
+A = [3 -1 1; 2 4 1; -1 2 5];
+b = [4; 1; 1];
 
-% Passo de tempo  
-Delta_t = 0.01;  
-t0 = 0;  
-tf = 5;  
+% Resolver sistema pelo método de Eliminação Gaussiana
+x = Algebra_Linear.Eliminacao_gaussiana(A, b);
 
-% Método Diferença Central  
-[u,v,a] = Integradores.Diferenca_Central(K,M,C,R0,u0,v0,acel_0,Delta_t,t0,tf);  
+% Inversa de Matriz
+A_inv_float    = Algebra_Linear.Gauss_Jordan_Inversa(A, "flutuante"); % ponto flutuante
+A_inv_rational = Algebra_Linear.Gauss_Jordan_Inversa(A, "racional");  % simbólico
 
-% Visualização (deslocamento do primeiro grau de liberdade)  
-plot(t0:Delta_t:tf, u(1,1:end-1))  
-xlabel('Tempo [s]')  
-ylabel('Deslocamento [m]')  
-title('Resposta Dinâmica - Diferença Central')  
-grid on  
+% Matriz de Hilbert e sua inversa
+[K,H] = Algebra_Linear.Inversa_Hilbert(5, "racional");
+
+% Gram-Schmidt
+V = rand(3,3); % matriz de vetores aleatórios
+[Q_ortogonal, Q_ortonormal] = Algebra_Linear.Gram_Schmidt(V);
+
+% Fatoração QR
+[Q,R] = Algebra_Linear.QR_Gram_Schmidt_Matriz(V);
+
 
 ---
 
